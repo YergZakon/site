@@ -1,126 +1,265 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="bg-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold">
+<!-- Hero Section with Background -->
+<section class="hero-section position-relative">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-7">
+                <h1 class="display-3 fw-bold text-white mb-4">
                     {% if current_language == 'kk' and site_settings.org_name_kk %}
                         {{ site_settings.org_name_kk }}
                     {% else %}
                         {{ site_settings.org_name }}
                     {% endif %}
                 </h1>
-                <p class="lead">{% trans "Независимая экспертиза качества медицинских услуг" %}</p>
-                <a href="{% url 'core:contacts' %}" class="btn btn-light btn-lg">
-                    {% trans "Заказать экспертизу" %}
-                </a>
+                <p class="lead text-white mb-4 fs-4">{% trans "Независимая экспертиза качества медицинских услуг" %}</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'core:contacts' %}" class="btn btn-light btn-lg px-4">
+                        <i class="bi bi-clipboard2-pulse me-2"></i>{% trans "Заказать экспертизу" %}
+                    </a>
+                    <a href="{% url 'core:experts' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-people me-2"></i>{% trans "Наши эксперты" %}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Stats Section -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-white">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="bi bi-people display-4 text-primary"></i>
-                        <h2 class="display-5 fw-bold">{{ expert_count }}+</h2>
-                        <p class="text-muted">{% trans "Экспертов в реестре" %}</p>
+        <div class="row text-center g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon bg-primary-soft rounded-circle mx-auto mb-3">
+                        <i class="bi bi-people-fill text-primary"></i>
                     </div>
+                    <h2 class="display-5 fw-bold text-primary mb-0">{{ expert_count }}+</h2>
+                    <p class="text-muted">{% trans "Экспертов" %}</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="bi bi-journal-text display-4 text-primary"></i>
-                        <h2 class="display-5 fw-bold">{{ publication_count }}+</h2>
-                        <p class="text-muted">{% trans "Публикаций" %}</p>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon bg-success-soft rounded-circle mx-auto mb-3">
+                        <i class="bi bi-file-medical text-success"></i>
                     </div>
+                    <h2 class="display-5 fw-bold text-success mb-0">1000+</h2>
+                    <p class="text-muted">{% trans "Экспертиз" %}</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="bi bi-award display-4 text-primary"></i>
-                        <h2 class="display-5 fw-bold">5</h2>
-                        <p class="text-muted">{% trans "Лет аккредитации" %}</p>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon bg-info-soft rounded-circle mx-auto mb-3">
+                        <i class="bi bi-journal-richtext text-info"></i>
                     </div>
+                    <h2 class="display-5 fw-bold text-info mb-0">{{ publication_count }}+</h2>
+                    <p class="text-muted">{% trans "Публикаций" %}</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon bg-warning-soft rounded-circle mx-auto mb-3">
+                        <i class="bi bi-award-fill text-warning"></i>
+                    </div>
+                    <h2 class="display-5 fw-bold text-warning mb-0">5+</h2>
+                    <p class="text-muted">{% trans "Лет опыта" %}</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Profiles Section -->
+<!-- Services Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">{% trans "Наши услуги" %}</h2>
+            <p class="text-muted">{% trans "Профессиональная экспертиза во всех областях медицины" %}</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="service-card h-100 p-4 bg-white rounded-4 shadow-sm">
+                    <div class="service-icon mb-4">
+                        <i class="bi bi-search text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Экспертиза качества" %}</h5>
+                    <p class="text-muted">{% trans "Независимая оценка качества оказанных медицинских услуг" %}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card h-100 p-4 bg-white rounded-4 shadow-sm">
+                    <div class="service-icon mb-4">
+                        <i class="bi bi-file-earmark-medical text-success"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Анализ документации" %}</h5>
+                    <p class="text-muted">{% trans "Экспертный анализ медицинской документации и историй болезни" %}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card h-100 p-4 bg-white rounded-4 shadow-sm">
+                    <div class="service-icon mb-4">
+                        <i class="bi bi-briefcase text-info"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Судебная экспертиза" %}</h5>
+                    <p class="text-muted">{% trans "Подготовка экспертных заключений для судебных разбирательств" %}</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'core:services' %}" class="btn btn-primary btn-lg px-5">{% trans "Все услуги" %}</a>
+        </div>
+    </div>
+</section>
+
+<!-- Expert Profiles Section -->
 {% if profiles %}
 <section class="py-5">
     <div class="container">
-        <h2 class="text-center mb-4">{% trans "Профили экспертов" %}</h2>
-        <div class="row">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">{% trans "Профили экспертов" %}</h2>
+            <p class="text-muted">{% trans "Квалифицированные специалисты по всем направлениям" %}</p>
+        </div>
+        <div class="row g-4">
             {% for profile in profiles %}
-            <div class="col-md-3 mb-4">
+            <div class="col-6 col-md-3">
                 <a href="{% url 'core:experts' %}?profile={{ profile.slug }}" class="text-decoration-none">
-                    <div class="card h-100 border-0 shadow-sm text-center">
-                        <div class="card-body">
-                            <i class="bi bi-heart-pulse display-4 text-primary"></i>
-                            <h5 class="mt-3">
-                                {% if current_language == 'kk' and profile.name_kk %}
-                                    {{ profile.name_kk }}
-                                {% else %}
-                                    {{ profile.name }}
-                                {% endif %}
-                            </h5>
-                            <p class="text-muted">{{ profile.experts.count }} {% trans "экспертов" %}</p>
+                    <div class="profile-card text-center p-4 rounded-4 h-100">
+                        <div class="profile-icon mx-auto mb-3">
+                            {% if profile.profile_type == 'therapeutic' %}
+                            <i class="bi bi-heart-pulse"></i>
+                            {% elif profile.profile_type == 'surgical' %}
+                            <i class="bi bi-scissors"></i>
+                            {% elif profile.profile_type == 'obstetric' %}
+                            <i class="bi bi-gender-female"></i>
+                            {% elif profile.profile_type == 'pediatric' %}
+                            <i class="bi bi-emoji-smile"></i>
+                            {% else %}
+                            <i class="bi bi-activity"></i>
+                            {% endif %}
                         </div>
+                        <h5 class="fw-bold text-dark">
+                            {% if current_language == 'kk' and profile.name_kk %}
+                                {{ profile.name_kk }}
+                            {% else %}
+                                {{ profile.name }}
+                            {% endif %}
+                        </h5>
+                        <span class="badge bg-primary rounded-pill">{{ profile.experts.count }} {% trans "экспертов" %}</span>
                     </div>
                 </a>
             </div>
             {% endfor %}
         </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'core:experts' %}" class="btn btn-outline-primary btn-lg px-5">{% trans "Все эксперты" %}</a>
+        </div>
     </div>
 </section>
 {% endif %}
+
+<!-- Why Choose Us Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="display-6 fw-bold mb-4">{% trans "Почему выбирают нас?" %}</h2>
+                <div class="d-flex mb-4">
+                    <div class="feature-icon me-3">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">{% trans "Независимость" %}</h5>
+                        <p class="text-white-50">{% trans "Объективные экспертные заключения без конфликта интересов" %}</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="feature-icon me-3">
+                        <i class="bi bi-patch-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">{% trans "Аккредитация" %}</h5>
+                        <p class="text-white-50">{% trans "Официальная аккредитация и соответствие всем стандартам" %}</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="feature-icon me-3">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">{% trans "Квалификация" %}</h5>
+                        <p class="text-white-50">{% trans "Эксперты с многолетним опытом и научными публикациями" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="why-us-image rounded-4 overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop"
+                         alt="Medical expertise" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- News Section -->
 {% if recent_news %}
 <section class="py-5 bg-light">
     <div class="container">
-        <h2 class="text-center mb-4">{% trans "Последние новости" %}</h2>
-        <div class="row">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">{% trans "Последние новости" %}</h2>
+        </div>
+        <div class="row g-4">
             {% for news in recent_news %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
                     {% if news.image %}
-                    <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}">
+                    <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-gradient-primary d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="bi bi-newspaper text-white" style="font-size: 3rem;"></i>
+                    </div>
                     {% endif %}
                     <div class="card-body">
-                        <small class="text-muted">{{ news.published_at|date:"d.m.Y" }}</small>
-                        <h5 class="card-title">
+                        <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ news.published_at|date:"d.m.Y" }}</small>
+                        <h5 class="card-title mt-2 fw-bold">
                             {% if current_language == 'kk' and news.title_kk %}
                                 {{ news.title_kk }}
                             {% else %}
                                 {{ news.title }}
                             {% endif %}
                         </h5>
-                        <a href="{% url 'core:news_detail' news.slug %}" class="btn btn-outline-primary btn-sm">
-                            {% trans "Подробнее" %}
+                        <a href="{% url 'core:news_detail' news.slug %}" class="btn btn-link text-primary p-0">
+                            {% trans "Подробнее" %} <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-        <div class="text-center mt-3">
-            <a href="{% url 'core:news' %}" class="btn btn-primary">{% trans "Все новости" %}</a>
+        <div class="text-center mt-4">
+            <a href="{% url 'core:news' %}" class="btn btn-primary btn-lg px-5">{% trans "Все новости" %}</a>
         </div>
     </div>
 </section>
 {% endif %}
+
+<!-- CTA Section -->
+<section class="py-5 bg-dark text-white">
+    <div class="container text-center">
+        <h2 class="display-6 fw-bold mb-3">{% trans "Нужна консультация?" %}</h2>
+        <p class="lead mb-4">{% trans "Свяжитесь с нами для получения профессиональной экспертной помощи" %}</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'core:contacts' %}" class="btn btn-light btn-lg px-4">
+                <i class="bi bi-envelope me-2"></i>{% trans "Написать нам" %}
+            </a>
+            <a href="tel:{{ site_settings.phone }}" class="btn btn-outline-light btn-lg px-4">
+                <i class="bi bi-telephone me-2"></i>{{ site_settings.phone }}
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}

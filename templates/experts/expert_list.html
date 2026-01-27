@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Эксперты" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Реестр независимых экспертов" %}</h1>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">{% trans "Фильтр по профилю:" %}</label>
+                    <select class="form-select" onchange="window.location.href=this.value">
+                        <option value="{% url 'core:experts' %}">{% trans "Все профили" %}</option>
+                        {% for profile in profiles %}
+                        <option value="{% url 'core:experts' %}?profile={{ profile.slug }}"
+                                {% if current_profile == profile.slug %}selected{% endif %}>
+                            {{ profile.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expert Grid -->
+    <div class="row">
+        {% for expert in page_obj %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    {% if expert.photo %}
+                    <img src="{{ expert.photo.url }}" class="rounded-circle mb-3"
+                         width="120" height="120" style="object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 120px; height: 120px;">
+                        <i class="bi bi-person-fill text-white display-4"></i>
+                    </div>
+                    {% endif %}
+
+                    <h5 class="card-title">
+                        {% if current_language == 'kk' %}
+                            {{ expert.full_name_kk }}
+                        {% else %}
+                            {{ expert.full_name }}
+                        {% endif %}
+                    </h5>
+                    <p class="text-muted mb-1">{{ expert.profile.name }}</p>
+                    <p class="small mb-2">
+                        {% trans "Стаж:" %} {{ expert.experience_years }} {% trans "лет" %}
+                    </p>
+                    <a href="{% url 'core:expert_detail' expert.pk %}" class="btn btn-outline-primary btn-sm">
+                        {% trans "Подробнее" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">{% trans "Эксперты не найдены" %}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_profile %}&profile={{ current_profile }}{% endif %}">
+                    {% trans "Назад" %}
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if current_profile %}&profile={{ current_profile }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_profile %}&profile={{ current_profile }}{% endif %}">
+                    {% trans "Далее" %}
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

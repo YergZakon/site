@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Контакты" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Контакты" %}</h1>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Контактная информация" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <i class="bi bi-geo-alt text-primary me-2"></i>
+                        <strong>{% trans "Адрес:" %}</strong><br>
+                        {% if current_language == 'kk' and site_settings.address_kk %}
+                            {{ site_settings.address_kk }}
+                        {% else %}
+                            {{ site_settings.address }}
+                        {% endif %}
+                    </p>
+                    <p>
+                        <i class="bi bi-telephone text-primary me-2"></i>
+                        <strong>{% trans "Телефон:" %}</strong><br>
+                        <a href="tel:{{ site_settings.phone }}">{{ site_settings.phone }}</a>
+                    </p>
+                    <p>
+                        <i class="bi bi-envelope text-primary me-2"></i>
+                        <strong>{% trans "Email:" %}</strong><br>
+                        <a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a>
+                    </p>
+                    {% if site_settings.bin_iin %}
+                    <p>
+                        <i class="bi bi-building text-primary me-2"></i>
+                        <strong>{% trans "БИН:" %}</strong> {{ site_settings.bin_iin }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Форма обратной связи" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Ваше имя" %} *</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Email" %} *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Телефон" %}</label>
+                            <input type="tel" name="phone" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Тема" %} *</label>
+                            <input type="text" name="subject" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Сообщение" %} *</label>
+                            <textarea name="message" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{% trans "Отправить" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

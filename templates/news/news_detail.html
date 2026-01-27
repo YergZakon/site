@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ news.title }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Главная" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:news' %}">{% trans "Новости" %}</a></li>
+            <li class="breadcrumb-item active">
+                {% if current_language == 'kk' and news.title_kk %}
+                    {{ news.title_kk|truncatewords:5 }}
+                {% else %}
+                    {{ news.title|truncatewords:5 }}
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+
+    <article>
+        <h1 class="mb-3">
+            {% if current_language == 'kk' and news.title_kk %}
+                {{ news.title_kk }}
+            {% else %}
+                {{ news.title }}
+            {% endif %}
+        </h1>
+
+        <p class="text-muted">
+            <i class="bi bi-calendar"></i> {{ news.published_at|date:"d.m.Y H:i" }}
+        </p>
+
+        {% if news.image %}
+        <img src="{{ news.image.url }}" class="img-fluid rounded mb-4" alt="{{ news.title }}">
+        {% endif %}
+
+        <div class="card">
+            <div class="card-body">
+                {% if current_language == 'kk' and news.content_kk %}
+                    {{ news.content_kk|safe }}
+                {% else %}
+                    {{ news.content|safe }}
+                {% endif %}
+            </div>
+        </div>
+    </article>
+
+    <div class="mt-4">
+        <a href="{% url 'core:news' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> {% trans "Все новости" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

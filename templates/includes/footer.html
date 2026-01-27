@@ -1,0 +1,43 @@
+{% load i18n %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <h5>{% trans "Контакты" %}</h5>
+            <p><i class="bi bi-geo-alt"></i>
+                {% if current_language == 'kk' and site_settings.address_kk %}
+                    {{ site_settings.address_kk }}
+                {% else %}
+                    {{ site_settings.address }}
+                {% endif %}
+            </p>
+            <p><i class="bi bi-telephone"></i> {{ site_settings.phone }}</p>
+            <p><i class="bi bi-envelope"></i> {{ site_settings.email }}</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h5>{% trans "Навигация" %}</h5>
+            <ul class="list-unstyled">
+                <li><a href="{% url 'core:about' %}" class="text-white-50">{% trans "О компании" %}</a></li>
+                <li><a href="{% url 'core:experts' %}" class="text-white-50">{% trans "Эксперты" %}</a></li>
+                <li><a href="{% url 'core:documents' %}" class="text-white-50">{% trans "Документы" %}</a></li>
+                <li><a href="{% url 'core:contacts' %}" class="text-white-50">{% trans "Контакты" %}</a></li>
+            </ul>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h5>{% trans "Документы" %}</h5>
+            {% if site_settings.accreditation_cert %}
+            <p><a href="{{ site_settings.accreditation_cert.url }}" class="text-white-50" target="_blank">
+                <i class="bi bi-file-pdf"></i> {% trans "Свидетельство об аккредитации" %}
+            </a></p>
+            {% endif %}
+            {% if site_settings.charter %}
+            <p><a href="{{ site_settings.charter.url }}" class="text-white-50" target="_blank">
+                <i class="bi bi-file-pdf"></i> {% trans "Устав" %}
+            </a></p>
+            {% endif %}
+        </div>
+    </div>
+    <hr class="border-white-50">
+    <div class="text-center">
+        <p class="mb-0">&copy; {{ site_settings.org_name }} {% now "Y" %}</p>
+    </div>
+</div>

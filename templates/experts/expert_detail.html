@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ expert.full_name }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Главная" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:experts' %}">{% trans "Эксперты" %}</a></li>
+            <li class="breadcrumb-item active">{{ expert.full_name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            {% if expert.photo %}
+            <img src="{{ expert.photo.url }}" class="rounded-circle mb-3 shadow"
+                 width="200" height="200" style="object-fit: cover;">
+            {% else %}
+            <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 shadow"
+                 style="width: 200px; height: 200px;">
+                <i class="bi bi-person-fill text-white" style="font-size: 5rem;"></i>
+            </div>
+            {% endif %}
+            <h3>
+                {% if current_language == 'kk' %}
+                    {{ expert.full_name_kk }}
+                {% else %}
+                    {{ expert.full_name }}
+                {% endif %}
+            </h3>
+            <p class="text-muted">{{ expert.profile.name }}</p>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Профессиональные данные" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">{% trans "Специализация" %}</th>
+                            <td>
+                                {% if current_language == 'kk' and expert.specialization_kk %}
+                                    {{ expert.specialization_kk }}
+                                {% else %}
+                                    {{ expert.specialization }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Образование" %}</th>
+                            <td>
+                                {% if current_language == 'kk' and expert.education_kk %}
+                                    {{ expert.education_kk }}
+                                {% else %}
+                                    {{ expert.education }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Место работы" %}</th>
+                            <td>
+                                {% if current_language == 'kk' and expert.workplace_kk %}
+                                    {{ expert.workplace_kk }}
+                                {% else %}
+                                    {{ expert.workplace }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Стаж" %}</th>
+                            <td>{{ expert.experience_years }} {% trans "лет" %}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Номер в реестре" %}</th>
+                            <td>{{ expert.registry_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Дата включения в реестр" %}</th>
+                            <td>{{ expert.registry_date|date:"d.m.Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Количество экспертиз" %}</th>
+                            <td>{{ expert.expertise_count }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            {% if expert.certificates.exists %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Сертификаты и документы" %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for cert in expert.certificates.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ cert.get_cert_type_display }}</strong><br>
+                                <small>{{ cert.title }} ({{ cert.issue_date|date:"Y" }})</small>
+                                {% if cert.hours %}
+                                <span class="badge bg-info">{{ cert.hours }} {% trans "часов" %}</span>
+                                {% endif %}
+                            </div>
+                            {% if cert.document %}
+                            <a href="{{ cert.document.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if expert.publications.exists %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans "Публикации" %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for pub in expert.publications.all %}
+                        <li class="list-group-item">
+                            <strong>{{ pub.title }}</strong> ({{ pub.year }})<br>
+                            <small class="text-muted">{{ pub.authors_text }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

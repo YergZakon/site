@@ -1,0 +1,65 @@
+{% load i18n %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
+            {% if site_settings.logo %}
+            <img src="{{ site_settings.logo.url }}" alt="Logo" height="40" class="me-2">
+            {% endif %}
+            <span class="d-none d-md-inline">
+                {% if current_language == 'kk' and site_settings.org_name_kk %}
+                    {{ site_settings.org_name_kk }}
+                {% else %}
+                    {{ site_settings.org_name }}
+                {% endif %}
+            </span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:home' %}">{% trans "Главная" %}</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        {% trans "О компании" %}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'core:about' %}">{% trans "О нас" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:documents' %}">{% trans "Документы" %}</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:services' %}">{% trans "Услуги" %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:experts' %}">{% trans "Эксперты" %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:publications' %}">{% trans "Публикации" %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:news' %}">{% trans "Новости" %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:contacts' %}">{% trans "Контакты" %}</a>
+                </li>
+            </ul>
+
+            <!-- Language Switcher -->
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                    <i class="bi bi-globe"></i>
+                    {% if current_language == 'kk' %}QAZ{% else %}RUS{% endif %}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'core:set_language' lang='kk' %}">Qazaqsha</a></li>
+                    <li><a class="dropdown-item" href="{% url 'core:set_language' lang='ru' %}">Русский</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Публикации" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Публикации" %}</h1>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">{% trans "Год:" %}</label>
+                    <select class="form-select" onchange="window.location.href=this.value">
+                        <option value="{% url 'core:publications' %}">{% trans "Все годы" %}</option>
+                        {% for year in years %}
+                        <option value="{% url 'core:publications' %}?year={{ year }}"
+                                {% if current_year == year|stringformat:"s" %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publications List -->
+    {% for pub in page_obj %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="card-title">
+                        {% if current_language == 'kk' and pub.title_kk %}
+                            {{ pub.title_kk }}
+                        {% else %}
+                            {{ pub.title }}
+                        {% endif %}
+                    </h5>
+                    <p class="card-text text-muted">
+                        <i class="bi bi-people"></i> {{ pub.authors_text }}<br>
+                        <i class="bi bi-calendar"></i> {{ pub.year }}
+                        {% if pub.journal %}
+                        | <i class="bi bi-journal"></i> {{ pub.journal }}
+                        {% endif %}
+                    </p>
+                    {% if pub.abstract %}
+                    <p class="card-text small">
+                        {% if current_language == 'kk' and pub.abstract_kk %}
+                            {{ pub.abstract_kk|truncatewords:50 }}
+                        {% else %}
+                            {{ pub.abstract|truncatewords:50 }}
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary">{{ pub.get_pub_type_display }}</span>
+                    {% if pub.file %}
+                    <br><a href="{{ pub.file.url }}" class="btn btn-sm btn-outline-primary mt-2" target="_blank">
+                        <i class="bi bi-download"></i> PDF
+                    </a>
+                    {% endif %}
+                    {% if pub.doi %}
+                    <br><a href="https://doi.org/{{ pub.doi }}" class="btn btn-sm btn-outline-secondary mt-1" target="_blank">
+                        DOI
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">{% trans "Публикации не найдены" %}</div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_year %}&year={{ current_year }}{% endif %}">
+                    {% trans "Назад" %}
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if current_year %}&year={{ current_year }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_year %}&year={{ current_year }}{% endif %}">
+                    {% trans "Далее" %}
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

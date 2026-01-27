@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Документы" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Документы организации" %}</h1>
+
+    {% for category in categories %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                {% if current_language == 'kk' and category.name_kk %}
+                    {{ category.name_kk }}
+                {% else %}
+                    {{ category.name }}
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if category.documents.exists %}
+            <ul class="list-group list-group-flush">
+                {% for doc in category.documents.all %}
+                {% if doc.is_public %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-file-pdf text-danger me-2"></i>
+                        {% if current_language == 'kk' and doc.title_kk %}
+                            {{ doc.title_kk }}
+                        {% else %}
+                            {{ doc.title }}
+                        {% endif %}
+                        {% if doc.description %}
+                        <br><small class="text-muted">
+                            {% if current_language == 'kk' and doc.description_kk %}
+                                {{ doc.description_kk }}
+                            {% else %}
+                                {{ doc.description }}
+                            {% endif %}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <a href="{{ doc.file.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="bi bi-download"></i> {% trans "Скачать" %}
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted mb-0">{% trans "Документы отсутствуют" %}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        {% trans "Документы будут добавлены позже." %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

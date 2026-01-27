@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Новости" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Новости" %}</h1>
+
+    <div class="row">
+        {% for news in page_obj %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if news.image %}
+                <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <small class="text-muted">{{ news.published_at|date:"d.m.Y" }}</small>
+                    <h5 class="card-title">
+                        {% if current_language == 'kk' and news.title_kk %}
+                            {{ news.title_kk }}
+                        {% else %}
+                            {{ news.title }}
+                        {% endif %}
+                    </h5>
+                    <p class="card-text">
+                        {% if current_language == 'kk' and news.excerpt_kk %}
+                            {{ news.excerpt_kk|truncatewords:20 }}
+                        {% else %}
+                            {{ news.excerpt|truncatewords:20 }}
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'core:news_detail' news.slug %}" class="btn btn-outline-primary btn-sm">
+                        {% trans "Подробнее" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">{% trans "Новости отсутствуют" %}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Назад" %}</a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Далее" %}</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

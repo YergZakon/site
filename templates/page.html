@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ page.title }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">
+        {% if current_language == 'kk' and page.title_kk %}
+            {{ page.title_kk }}
+        {% else %}
+            {{ page.title }}
+        {% endif %}
+    </h1>
+
+    <div class="card">
+        <div class="card-body">
+            {% if current_language == 'kk' and page.content_kk %}
+                {{ page.content_kk|safe }}
+            {% else %}
+                {{ page.content|safe }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

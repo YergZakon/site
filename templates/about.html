@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "О компании" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "О компании" %}</h1>
+
+    {% if page %}
+    <div class="card">
+        <div class="card-body">
+            {% if current_language == 'kk' and page.content_kk %}
+                {{ page.content_kk|safe }}
+            {% else %}
+                {{ page.content|safe }}
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        {% trans "Информация о компании будет добавлена позже." %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold">
+                    {% if current_language == 'kk' and site_settings.org_name_kk %}
+                        {{ site_settings.org_name_kk }}
+                    {% else %}
+                        {{ site_settings.org_name }}
+                    {% endif %}
+                </h1>
+                <p class="lead">{% trans "Независимая экспертиза качества медицинских услуг" %}</p>
+                <a href="{% url 'core:contacts' %}" class="btn btn-light btn-lg">
+                    {% trans "Заказать экспертизу" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-people display-4 text-primary"></i>
+                        <h2 class="display-5 fw-bold">{{ expert_count }}+</h2>
+                        <p class="text-muted">{% trans "Экспертов в реестре" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-journal-text display-4 text-primary"></i>
+                        <h2 class="display-5 fw-bold">{{ publication_count }}+</h2>
+                        <p class="text-muted">{% trans "Публикаций" %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-award display-4 text-primary"></i>
+                        <h2 class="display-5 fw-bold">5</h2>
+                        <p class="text-muted">{% trans "Лет аккредитации" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Profiles Section -->
+{% if profiles %}
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">{% trans "Профили экспертов" %}</h2>
+        <div class="row">
+            {% for profile in profiles %}
+            <div class="col-md-3 mb-4">
+                <a href="{% url 'core:experts' %}?profile={{ profile.slug }}" class="text-decoration-none">
+                    <div class="card h-100 border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="bi bi-heart-pulse display-4 text-primary"></i>
+                            <h5 class="mt-3">
+                                {% if current_language == 'kk' and profile.name_kk %}
+                                    {{ profile.name_kk }}
+                                {% else %}
+                                    {{ profile.name }}
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted">{{ profile.experts.count }} {% trans "экспертов" %}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- News Section -->
+{% if recent_news %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">{% trans "Последние новости" %}</h2>
+        <div class="row">
+            {% for news in recent_news %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if news.image %}
+                    <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <small class="text-muted">{{ news.published_at|date:"d.m.Y" }}</small>
+                        <h5 class="card-title">
+                            {% if current_language == 'kk' and news.title_kk %}
+                                {{ news.title_kk }}
+                            {% else %}
+                                {{ news.title }}
+                            {% endif %}
+                        </h5>
+                        <a href="{% url 'core:news_detail' news.slug %}" class="btn btn-outline-primary btn-sm">
+                            {% trans "Подробнее" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-3">
+            <a href="{% url 'core:news' %}" class="btn btn-primary">{% trans "Все новости" %}</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -5,9 +5,9 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4">{% trans "Услуги" %}</h1>
+    <h1 class="display-5 fw-bold mb-4">{% trans "Наши услуги" %}</h1>
 
-    {% if page %}
+    {% if page and page.content %}
     <div class="card">
         <div class="card-body">
             {% if current_language == 'kk' and page.content_kk %}
@@ -18,9 +18,104 @@
         </div>
     </div>
     {% else %}
-    <div class="alert alert-info">
-        {% trans "Информация об услугах будет добавлена позже." %}
+
+    <p class="lead text-muted mb-5">{% trans "Мы предоставляем полный спектр услуг по независимой медицинской экспертизе" %}</p>
+
+    <div class="row g-4">
+        <!-- Экспертиза качества -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="service-icon mb-3">
+                        <i class="bi bi-search text-white"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Экспертиза качества медицинской помощи" %}</h5>
+                    <p class="text-muted">{% trans "Независимая оценка качества оказанных медицинских услуг, выявление дефектов и нарушений стандартов лечения." %}</p>
+                    <p class="fw-bold text-primary mb-0">{% trans "Цена: договорная" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Анализ документации -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="service-icon mb-3">
+                        <i class="bi bi-file-earmark-medical text-white"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Анализ медицинской документации" %}</h5>
+                    <p class="text-muted">{% trans "Экспертный анализ медицинских карт, историй болезни, протоколов лечения и диагностических исследований." %}</p>
+                    <p class="fw-bold text-primary mb-0">{% trans "Цена: договорная" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Судебная экспертиза -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="service-icon mb-3">
+                        <i class="bi bi-briefcase text-white"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Судебно-медицинская экспертиза" %}</h5>
+                    <p class="text-muted">{% trans "Подготовка экспертных заключений для судебных разбирательств, участие в судебных заседаниях в качестве эксперта." %}</p>
+                    <p class="fw-bold text-primary mb-0">{% trans "Цена: договорная" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Консультации -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="service-icon mb-3">
+                        <i class="bi bi-chat-dots text-white"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Консультации специалистов" %}</h5>
+                    <p class="text-muted">{% trans "Профессиональные консультации по вопросам качества медицинской помощи и защиты прав пациентов." %}</p>
+                    <p class="fw-bold text-primary mb-0">{% trans "Цена: договорная" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Рецензирование -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="service-icon mb-3">
+                        <i class="bi bi-journal-check text-white"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Рецензирование экспертных заключений" %}</h5>
+                    <p class="text-muted">{% trans "Анализ и рецензирование ранее проведённых экспертиз, подготовка альтернативных заключений." %}</p>
+                    <p class="fw-bold text-primary mb-0">{% trans "Цена: договорная" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Досудебное урегулирование -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="service-icon mb-3">
+                        <i class="bi bi-people text-white"></i>
+                    </div>
+                    <h5 class="fw-bold">{% trans "Досудебное урегулирование" %}</h5>
+                    <p class="text-muted">{% trans "Содействие в досудебном урегулировании споров между пациентами и медицинскими организациями." %}</p>
+                    <p class="fw-bold text-primary mb-0">{% trans "Цена: договорная" %}</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-5 p-5 bg-light rounded-4">
+        <h4 class="fw-bold mb-3">{% trans "Нужна консультация?" %}</h4>
+        <p class="text-muted mb-4">{% trans "Свяжитесь с нами для обсуждения вашего случая и получения индивидуального предложения" %}</p>
+        <a href="{% url 'core:contacts' %}" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-envelope me-2"></i>{% trans "Связаться с нами" %}
+        </a>
+    </div>
+
     {% endif %}
 </div>
 {% endblock %}

@@ -5,9 +5,9 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4">{% trans "О компании" %}</h1>
+    <h1 class="display-5 fw-bold mb-4">{% trans "О компании" %}</h1>
 
-    {% if page %}
+    {% if page and page.content %}
     <div class="card">
         <div class="card-body">
             {% if current_language == 'kk' and page.content_kk %}
@@ -18,9 +18,125 @@
         </div>
     </div>
     {% else %}
-    <div class="alert alert-info">
-        {% trans "Информация о компании будет добавлена позже." %}
+
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4 p-lg-5">
+                    <h3 class="fw-bold mb-4">{% trans "Кто мы" %}</h3>
+                    <p class="lead">
+                        {% trans "Мы — команда высококвалифицированных специалистов в области медицинской экспертизы с многолетним опытом работы в здравоохранении Казахстана." %}
+                    </p>
+                    <p>
+                        {% trans "Наша организация объединяет экспертов различных медицинских специальностей, что позволяет проводить комплексную и всестороннюю оценку качества медицинской помощи." %}
+                    </p>
+                    <p>
+                        {% trans "Каждый наш эксперт имеет профильное медицинское образование, богатый клинический опыт и специальную подготовку в области экспертной деятельности." %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4 p-lg-5">
+                    <h3 class="fw-bold mb-4">{% trans "Наша миссия" %}</h3>
+                    <p>
+                        {% trans "Содействие повышению качества медицинской помощи в Республике Казахстан через профессиональную независимую экспертизу и защиту прав пациентов." %}
+                    </p>
+                    <p>
+                        {% trans "Мы стремимся к объективности и беспристрастности в каждом экспертном заключении, руководствуясь исключительно медицинскими стандартами и нормативными требованиями." %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <h3 class="fw-bold mb-4">{% trans "Разнообразие услуг" %}</h3>
+                    <p>
+                        {% trans "Мы предоставляем широкий спектр услуг по независимой медицинской экспертизе:" %}
+                    </p>
+                    <ul class="list-unstyled">
+                        <li class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <span>{% trans "Экспертиза качества медицинской помощи" %}</span>
+                        </li>
+                        <li class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <span>{% trans "Судебно-медицинская экспертиза" %}</span>
+                        </li>
+                        <li class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <span>{% trans "Анализ медицинской документации" %}</span>
+                        </li>
+                        <li class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <span>{% trans "Консультации по вопросам защиты прав пациентов" %}</span>
+                        </li>
+                        <li class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <span>{% trans "Рецензирование экспертных заключений" %}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Преимущества -->
+            <div class="card border-0 bg-primary text-white shadow mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">{% trans "Наши преимущества" %}</h5>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="feature-icon me-3">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{% trans "Независимость" %}</h6>
+                            <small class="text-white-50">{% trans "Объективные заключения без конфликта интересов" %}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="feature-icon me-3">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{% trans "Профессионализм" %}</h6>
+                            <small class="text-white-50">{% trans "Эксперты с многолетним опытом" %}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="feature-icon me-3">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{% trans "Оперативность" %}</h6>
+                            <small class="text-white-50">{% trans "Соблюдение сроков проведения экспертиз" %}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <div class="feature-icon me-3">
+                            <i class="bi bi-file-earmark-check"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{% trans "Качество" %}</h6>
+                            <small class="text-white-50">{% trans "Соответствие всем нормативным требованиям" %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Контакты -->
+            <div class="card border-0 shadow">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">{% trans "Свяжитесь с нами" %}</h5>
+                    <p class="text-muted">{% trans "Готовы ответить на ваши вопросы и помочь с выбором необходимой экспертизы." %}</p>
+                    <a href="{% url 'core:contacts' %}" class="btn btn-primary w-100">
+                        <i class="bi bi-envelope me-2"></i>{% trans "Контакты" %}
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
+
     {% endif %}
 </div>
 {% endblock %}

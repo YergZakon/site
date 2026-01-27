@@ -110,6 +110,12 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    'https://medstandartkz.up.railway.app',
+    'https://*.up.railway.app',
+]
+
 # Production settings
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True

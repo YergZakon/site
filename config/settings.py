@@ -5,11 +5,18 @@ import dj_database_url
 
 load_dotenv()
 
+
+def _env_csv(name: str, default: str = "") -> list[str]:
+    return [item.strip() for item in os.getenv(name, default).split(",") if item.strip()]
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = _env_csv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,medstandartkz.kz,www.medstandartkz.kz',
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -115,10 +122,10 @@ PROTOCOL_ASSISTANT_URL = os.getenv('PROTOCOL_ASSISTANT_URL', 'http://127.0.0.1:8
 PROTOCOL_ASSISTANT_TIMEOUT = float(os.getenv('PROTOCOL_ASSISTANT_TIMEOUT', '45'))
 
 # CSRF trusted origins
-CSRF_TRUSTED_ORIGINS = [
-    'https://medstandartkz.up.railway.app',
-    'https://*.up.railway.app',
-]
+CSRF_TRUSTED_ORIGINS = _env_csv(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://medstandartkz.kz,https://www.medstandartkz.kz,https://medstandartkz.up.railway.app,https://*.up.railway.app',
+)
 
 # Production settings
 if not DEBUG:

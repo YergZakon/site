@@ -43,6 +43,9 @@
                 {% csrf_token %}
                 <input type="hidden" name="stage" value="clarify">
                 <input type="hidden" name="query" value="{{ query }}">
+                {% for qid, ans in persistent_clarification_answers.items %}
+                <input type="hidden" name="clarify_{{ qid }}" value="{{ ans }}">
+                {% endfor %}
                 {% for item in clarification_items %}
                 <div class="mb-4">
                     <div class="fw-semibold mb-2">{{ forloop.counter }}. {{ item.question }}</div>

@@ -83,6 +83,25 @@ def _normalize_clarification_items(
     return items
 
 
+def _build_persistent_answers(
+    all_answers: Mapping[str, Any],
+    active_question_ids: List[str],
+) -> Dict[str, str]:
+    active_set = {str(qid).strip() for qid in active_question_ids if str(qid).strip()}
+    persistent: Dict[str, str] = {}
+    for key, raw_value in all_answers.items():
+        qid = str(key or "").strip()
+        value = str(raw_value or "").strip().lower()
+        if not qid or qid in active_set:
+            continue
+        if value not in VALID_CLARIFICATION_ANSWERS:
+            continue
+        if value == "unknown":
+            continue
+        persistent[qid] = value
+    return persistent
+
+
 def home(request):
     """Главная страница"""
     context = {
@@ -212,6 +231,7 @@ def assistant(request):
     answer = ""
     awaiting_clarification = False
     clarification_items: List[Dict[str, str]] = []
+    persistent_clarification_answers: Dict[str, str] = {}
 
     if request.method == "POST":
         stage = str(request.POST.get("stage", "query")).strip().lower()
@@ -241,15 +261,29 @@ def assistant(request):
                 clarification = payload.get("clarification", {})
                 required = bool(clarification.get("required"))
                 questions = clarification.get("questions") or []
+                all_answers = clarification.get("answers") or {}
                 if not isinstance(questions, list):
                     questions = []
+                if not isinstance(all_answers, dict):
+                    all_answers = {}
+                answered_count = int(clarification.get("answered_count") or 0)
 
                 if required and questions:
                     awaiting_clarification = True
                     clarification_items = _normalize_clarification_items(
                         questions=questions,
-                        selected_answers=clarification_answers,
+                        selected_answers={str(k): str(v) for k, v in all_answers.items()},
                     )
+                    question_ids = [str(item.get("id", "")).strip() for item in questions]
+                    persistent_clarification_answers = _build_persistent_answers(
+                        all_answers={str(k): str(v) for k, v in all_answers.items()},
+                        active_question_ids=question_ids,
+                    )
+                    if stage == "clarify" and answered_count <= 0:
+                        messages.warning(
+                            request,
+                            _("Выберите хотя бы один вариант Да/Нет, иначе рекомендации не уточнятся."),
+                        )
                     messages.info(
                         request,
                         _("Чтобы дать точные рекомендации, ответьте на уточняющие вопросы."),
@@ -279,6 +313,7 @@ def assistant(request):
         "answer": answer,
         "awaiting_clarification": awaiting_clarification,
         "clarification_items": clarification_items,
+        "persistent_clarification_answers": persistent_clarification_answers,
         "example_query": (
             "Пациент 35 лет, кашель с мокротой 4 дня, температура 38.2, "
             "боль в грудной клетке при вдохе, одышка при нагрузке."

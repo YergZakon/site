@@ -16,6 +16,7 @@ from publications.models import Publication
 
 CLARIFICATION_FIELD_PREFIX = "clarify_"
 VALID_CLARIFICATION_ANSWERS = {"yes", "no", "unknown"}
+ASSISTANT_SESSION_ANSWERS_KEY = "assistant_clarification_answers"
 
 
 def _request_protocol_assistant(
@@ -100,6 +101,31 @@ def _build_persistent_answers(
             continue
         persistent[qid] = value
     return persistent
+
+
+def _normalize_answers_map(raw_answers: Mapping[str, Any]) -> Dict[str, str]:
+    normalized: Dict[str, str] = {}
+    for key, raw_value in raw_answers.items():
+        qid = str(key or "").strip()
+        if not qid:
+            continue
+        value = str(raw_value or "").strip().lower()
+        if value not in VALID_CLARIFICATION_ANSWERS:
+            value = "unknown"
+        normalized[qid] = value
+    return normalized
+
+
+def _merge_answers_maps(*maps: Mapping[str, Any]) -> Dict[str, str]:
+    merged: Dict[str, str] = {}
+    for source in maps:
+        merged.update(_normalize_answers_map(source))
+    return merged
+
+
+def _to_session_answers(raw_answers: Mapping[str, Any]) -> Dict[str, str]:
+    answers = _normalize_answers_map(raw_answers)
+    return {qid: value for qid, value in answers.items() if value in {"yes", "no"}}
 
 
 def home(request):
@@ -237,6 +263,13 @@ def assistant(request):
         stage = str(request.POST.get("stage", "query")).strip().lower()
         query = " ".join(str(request.POST.get("query", "")).split())
         words_count = len(query.split())
+        session_answers = _normalize_answers_map(
+            request.session.get(ASSISTANT_SESSION_ANSWERS_KEY, {})
+        )
+
+        if stage == "query":
+            session_answers = {}
+            request.session.pop(ASSISTANT_SESSION_ANSWERS_KEY, None)
 
         if not query:
             messages.error(
@@ -251,7 +284,10 @@ def assistant(request):
         else:
             clarification_answers = {}
             if stage == "clarify":
-                clarification_answers = _extract_clarification_answers(request.POST)
+                clarification_answers = _merge_answers_maps(
+                    session_answers,
+                    _extract_clarification_answers(request.POST),
+                )
             try:
                 payload = _request_protocol_assistant(
                     query=query,
@@ -266,19 +302,28 @@ def assistant(request):
                     questions = []
                 if not isinstance(all_answers, dict):
                     all_answers = {}
+                all_answers_normalized = _merge_answers_maps(session_answers, all_answers)
                 answered_count = int(clarification.get("answered_count") or 0)
 
                 if required and questions:
                     awaiting_clarification = True
                     clarification_items = _normalize_clarification_items(
                         questions=questions,
-                        selected_answers={str(k): str(v) for k, v in all_answers.items()},
+                        selected_answers=all_answers_normalized,
                     )
-                    question_ids = [str(item.get("id", "")).strip() for item in questions]
+                    question_ids = [
+                        str(item.get("id", "")).strip()
+                        for item in clarification_items
+                        if str(item.get("id", "")).strip()
+                    ]
                     persistent_clarification_answers = _build_persistent_answers(
-                        all_answers={str(k): str(v) for k, v in all_answers.items()},
+                        all_answers=all_answers_normalized,
                         active_question_ids=question_ids,
                     )
+                    request.session[ASSISTANT_SESSION_ANSWERS_KEY] = _to_session_answers(
+                        all_answers_normalized
+                    )
+                    request.session.modified = True
                     if stage == "clarify" and answered_count <= 0:
                         messages.warning(
                             request,
@@ -292,6 +337,7 @@ def assistant(request):
                     answer = str(payload.get("assistant_answer", "")).strip()
                     if not answer:
                         raise RuntimeError("assistant response is empty")
+                    request.session.pop(ASSISTANT_SESSION_ANSWERS_KEY, None)
             except HTTPError:
                 messages.error(
                     request,

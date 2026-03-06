@@ -1,4 +1,5 @@
 import json
+from typing import Any, Dict, List, Mapping, Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -13,10 +14,19 @@ from experts.models import Expert, ExpertProfile
 from documents.models import Document, DocumentCategory
 from publications.models import Publication
 
+CLARIFICATION_FIELD_PREFIX = "clarify_"
+VALID_CLARIFICATION_ANSWERS = {"yes", "no", "unknown"}
 
-def _request_protocol_assistant(query: str, top_k: int = 3) -> str:
+
+def _request_protocol_assistant(
+    query: str,
+    top_k: int = 3,
+    clarification_answers: Optional[Dict[str, str]] = None,
+) -> Dict[str, Any]:
     endpoint = f"{settings.PROTOCOL_ASSISTANT_URL.rstrip('/')}/assist"
     payload = {"query": query, "top_k": max(1, int(top_k))}
+    if clarification_answers:
+        payload["clarification_answers"] = clarification_answers
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     request = Request(
         endpoint,
@@ -27,10 +37,50 @@ def _request_protocol_assistant(query: str, top_k: int = 3) -> str:
     timeout = float(getattr(settings, "PROTOCOL_ASSISTANT_TIMEOUT", 30))
     with urlopen(request, timeout=timeout) as response:
         data = json.loads(response.read().decode("utf-8"))
-    answer = str(data.get("assistant_answer", "")).strip()
-    if not answer:
-        raise RuntimeError("assistant response is empty")
-    return answer
+    if not isinstance(data, dict):
+        raise RuntimeError("assistant response has invalid format")
+    return data
+
+
+def _extract_clarification_answers(post_data: Mapping[str, Any]) -> Dict[str, str]:
+    answers: Dict[str, str] = {}
+    for key, raw_value in post_data.items():
+        if not key.startswith(CLARIFICATION_FIELD_PREFIX):
+            continue
+        qid = key[len(CLARIFICATION_FIELD_PREFIX) :].strip()
+        if not qid:
+            continue
+        value = str(raw_value or "").strip().lower()
+        if value not in VALID_CLARIFICATION_ANSWERS:
+            value = "unknown"
+        answers[qid] = value
+    return answers
+
+
+def _normalize_clarification_items(
+    questions: List[Dict[str, Any]],
+    selected_answers: Optional[Dict[str, str]] = None,
+) -> List[Dict[str, str]]:
+    selected_answers = selected_answers or {}
+    items: List[Dict[str, str]] = []
+    for raw_question in questions:
+        if not isinstance(raw_question, dict):
+            continue
+        qid = str(raw_question.get("id", "")).strip()
+        qtext = str(raw_question.get("question", "")).strip()
+        if not qid or not qtext:
+            continue
+        selected = str(selected_answers.get(qid, "unknown")).strip().lower()
+        if selected not in VALID_CLARIFICATION_ANSWERS:
+            selected = "unknown"
+        items.append(
+            {
+                "id": qid,
+                "question": qtext,
+                "selected": selected,
+            }
+        )
+    return items
 
 
 def home(request):
@@ -160,19 +210,54 @@ def assistant(request):
     """Ассистент по клиническим протоколам: только вопрос -> ответ."""
     query = ""
     answer = ""
+    awaiting_clarification = False
+    clarification_items: List[Dict[str, str]] = []
 
     if request.method == "POST":
+        stage = str(request.POST.get("stage", "query")).strip().lower()
         query = " ".join(str(request.POST.get("query", "")).split())
         words_count = len(query.split())
 
-        if words_count < 10:
+        if not query:
+            messages.error(
+                request,
+                _("Опишите состояние пациента перед отправкой."),
+            )
+        elif stage == "query" and words_count < 10:
             messages.error(
                 request,
                 _("Опишите состояние подробнее: минимум 10 слов."),
             )
         else:
+            clarification_answers = {}
+            if stage == "clarify":
+                clarification_answers = _extract_clarification_answers(request.POST)
             try:
-                answer = _request_protocol_assistant(query=query, top_k=3)
+                payload = _request_protocol_assistant(
+                    query=query,
+                    top_k=3,
+                    clarification_answers=clarification_answers,
+                )
+                clarification = payload.get("clarification", {})
+                required = bool(clarification.get("required"))
+                questions = clarification.get("questions") or []
+                if not isinstance(questions, list):
+                    questions = []
+
+                if required and questions:
+                    awaiting_clarification = True
+                    clarification_items = _normalize_clarification_items(
+                        questions=questions,
+                        selected_answers=clarification_answers,
+                    )
+                    messages.info(
+                        request,
+                        _("Чтобы дать точные рекомендации, ответьте на уточняющие вопросы."),
+                    )
+                else:
+                    answer = str(payload.get("assistant_answer", "")).strip()
+                    if not answer:
+                        raise RuntimeError("assistant response is empty")
             except HTTPError:
                 messages.error(
                     request,
@@ -192,6 +277,8 @@ def assistant(request):
     context = {
         "query": query,
         "answer": answer,
+        "awaiting_clarification": awaiting_clarification,
+        "clarification_items": clarification_items,
         "example_query": (
             "Пациент 35 лет, кашель с мокротой 4 дня, температура 38.2, "
             "боль в грудной клетке при вдохе, одышка при нагрузке."

@@ -110,6 +110,10 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Protocol assistant integration
+PROTOCOL_ASSISTANT_URL = os.getenv('PROTOCOL_ASSISTANT_URL', 'http://127.0.0.1:8080')
+PROTOCOL_ASSISTANT_TIMEOUT = float(os.getenv('PROTOCOL_ASSISTANT_TIMEOUT', '45'))
+
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://medstandartkz.up.railway.app',

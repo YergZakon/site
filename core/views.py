@@ -1,3 +1,8 @@
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils.translation import activate, gettext as _
@@ -7,6 +12,25 @@ from .models import SiteSettings, Page, NewsItem, ContactMessage
 from experts.models import Expert, ExpertProfile
 from documents.models import Document, DocumentCategory
 from publications.models import Publication
+
+
+def _request_protocol_assistant(query: str, top_k: int = 3) -> str:
+    endpoint = f"{settings.PROTOCOL_ASSISTANT_URL.rstrip('/')}/assist"
+    payload = {"query": query, "top_k": max(1, int(top_k))}
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    request = Request(
+        endpoint,
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    timeout = float(getattr(settings, "PROTOCOL_ASSISTANT_TIMEOUT", 30))
+    with urlopen(request, timeout=timeout) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    answer = str(data.get("assistant_answer", "")).strip()
+    if not answer:
+        raise RuntimeError("assistant response is empty")
+    return answer
 
 
 def home(request):
@@ -130,6 +154,50 @@ def contacts(request):
         return redirect('core:contacts')
 
     return render(request, 'contacts.html')
+
+
+def assistant(request):
+    """Ассистент по клиническим протоколам: только вопрос -> ответ."""
+    query = ""
+    answer = ""
+
+    if request.method == "POST":
+        query = " ".join(str(request.POST.get("query", "")).split())
+        words_count = len(query.split())
+
+        if words_count < 10:
+            messages.error(
+                request,
+                _("Опишите состояние подробнее: минимум 10 слов."),
+            )
+        else:
+            try:
+                answer = _request_protocol_assistant(query=query, top_k=3)
+            except HTTPError:
+                messages.error(
+                    request,
+                    _("Ассистент временно недоступен. Попробуйте снова через несколько минут."),
+                )
+            except URLError:
+                messages.error(
+                    request,
+                    _("Не удалось подключиться к сервису ассистента."),
+                )
+            except Exception:
+                messages.error(
+                    request,
+                    _("Не удалось получить ответ. Попробуйте уточнить описание."),
+                )
+
+    context = {
+        "query": query,
+        "answer": answer,
+        "example_query": (
+            "Пациент 35 лет, кашель с мокротой 4 дня, температура 38.2, "
+            "боль в грудной клетке при вдохе, одышка при нагрузке."
+        ),
+    }
+    return render(request, "assistant.html", context)
 
 
 def page_detail(request, slug):

@@ -39,6 +39,11 @@
         margin-bottom: .55rem;
         line-height: 1.45;
     }
+    .assistant-disclaimer {
+        border: 1px solid #ffe69c;
+        background: #fff8db;
+        color: #664d03;
+    }
 </style>
 <div class="container py-5">
     <h1 class="display-5 fw-bold mb-3">{% trans "Ассистент клинических протоколов" %}</h1>
@@ -64,7 +69,7 @@
                 <div class="small text-muted mb-3">
                     {% trans "Пример:" %} {{ example_query }}
                 </div>
-                <div class="alert alert-warning border-0 small mb-3" role="alert">
+                <div class="assistant-disclaimer rounded small mb-3 p-3" role="note">
                     <strong>{% trans "Отказ от ответственности:" %}</strong>
                     {% trans "Сведения предоставлены из клинических протоколов и носят исключительно информационный характер. Обязательно обратитесь к врачу. Не применяйте рекомендации без очной консультации специалиста." %}
                 </div>

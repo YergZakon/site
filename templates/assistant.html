@@ -4,6 +4,42 @@
 {% block title %}{% trans "Ассистент протоколов" %} | {{ block.super }}{% endblock %}
 
 {% block content %}
+<style>
+    .assistant-answer-lead {
+        border-left: 4px solid #198754;
+        background: #f3fff8;
+    }
+    .assistant-answer-grid .assistant-answer-block {
+        border: 1px solid #e5eef9;
+        border-left: 4px solid #0d6efd;
+        background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+    .assistant-answer-title {
+        font-size: 1.02rem;
+        margin: 0;
+    }
+    .assistant-answer-index {
+        width: 1.7rem;
+        height: 1.7rem;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .82rem;
+        font-weight: 700;
+        flex: 0 0 auto;
+    }
+    .assistant-answer-list {
+        margin: 0;
+        padding-left: 1.15rem;
+    }
+    .assistant-answer-list li {
+        margin-bottom: .55rem;
+        line-height: 1.45;
+    }
+</style>
 <div class="container py-5">
     <h1 class="display-5 fw-bold mb-3">{% trans "Ассистент клинических протоколов" %}</h1>
     <p class="lead text-muted mb-4">
@@ -86,7 +122,33 @@
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-light fw-semibold">{% trans "Ответ" %}</div>
         <div class="card-body">
+            {% if answer_lead_text %}
+            <div class="assistant-answer-lead rounded p-3 mb-3" style="white-space: pre-line;">{{ answer_lead_text }}</div>
+            {% endif %}
+
+            {% if answer_blocks %}
+            <div class="row g-3 assistant-answer-grid">
+                {% for block in answer_blocks %}
+                <div class="col-12 col-lg-6">
+                    <div class="assistant-answer-block rounded h-100">
+                        <div class="p-3 p-lg-4">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="assistant-answer-index">{{ forloop.counter }}</span>
+                                <h3 class="assistant-answer-title fw-semibold">{{ block.title }}</h3>
+                            </div>
+                            <ul class="assistant-answer-list">
+                                {% for item in block.items %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
             <div style="white-space: pre-line;">{{ answer }}</div>
+            {% endif %}
         </div>
     </div>
     {% endif %}

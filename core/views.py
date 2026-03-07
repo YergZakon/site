@@ -17,6 +17,15 @@ from publications.models import Publication
 CLARIFICATION_FIELD_PREFIX = "clarify_"
 VALID_CLARIFICATION_ANSWERS = {"yes", "no", "unknown"}
 ASSISTANT_SESSION_ANSWERS_KEY = "assistant_clarification_answers"
+ANSWER_BLOCK_TITLES = [
+    "Что делать сейчас",
+    "Какие обследования обычно нужны",
+    "Как лечат",
+    "Какие лекарства могут применяться",
+    "Когда нужна госпитализация или срочная помощь",
+    "Контроль и профилактика",
+]
+ANSWER_BLOCK_TITLE_MAP = {title.casefold(): title for title in ANSWER_BLOCK_TITLES}
 
 
 def _request_protocol_assistant(
@@ -126,6 +135,66 @@ def _merge_answers_maps(*maps: Mapping[str, Any]) -> Dict[str, str]:
 def _to_session_answers(raw_answers: Mapping[str, Any]) -> Dict[str, str]:
     answers = _normalize_answers_map(raw_answers)
     return {qid: value for qid, value in answers.items() if value in {"yes", "no"}}
+
+
+def _dedupe_keep_order(items: List[str]) -> List[str]:
+    out: List[str] = []
+    seen: set[str] = set()
+    for raw in items:
+        value = " ".join(str(raw or "").split()).strip()
+        if not value:
+            continue
+        key = value.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(value)
+    return out
+
+
+def _strip_bullet_prefix(line: str) -> str:
+    value = str(line or "").strip()
+    for prefix in ("- ", "• ", "▪ ", "● ", "* "):
+        if value.startswith(prefix):
+            return value[len(prefix) :].strip()
+    if value and value[0] in "-•▪●*":
+        return value[1:].strip()
+    return value
+
+
+def _parse_answer_blocks(answer: str) -> Dict[str, Any]:
+    lead_lines: List[str] = []
+    blocks: List[Dict[str, Any]] = []
+    current_block: Optional[Dict[str, Any]] = None
+
+    for raw_line in str(answer or "").splitlines():
+        line = " ".join(raw_line.split()).strip()
+        if not line:
+            continue
+        normalized_heading = line.rstrip(":").strip().casefold()
+        title = ANSWER_BLOCK_TITLE_MAP.get(normalized_heading)
+        if title:
+            current_block = {"title": title, "items": []}
+            blocks.append(current_block)
+            continue
+
+        item = _strip_bullet_prefix(line)
+        if not item:
+            continue
+
+        if current_block is None:
+            lead_lines.append(item)
+        else:
+            current_block["items"].append(item)
+
+    for block in blocks:
+        block["items"] = _dedupe_keep_order(block.get("items", []))
+    lead_lines = _dedupe_keep_order(lead_lines)
+
+    return {
+        "lead_text": "\n".join(lead_lines),
+        "blocks": blocks,
+    }
 
 
 def home(request):
@@ -255,6 +324,8 @@ def assistant(request):
     """Ассистент по клиническим протоколам: только вопрос -> ответ."""
     query = ""
     answer = ""
+    answer_lead_text = ""
+    answer_blocks: List[Dict[str, Any]] = []
     awaiting_clarification = False
     clarification_items: List[Dict[str, str]] = []
     persistent_clarification_answers: Dict[str, str] = {}
@@ -337,6 +408,9 @@ def assistant(request):
                     answer = str(payload.get("assistant_answer", "")).strip()
                     if not answer:
                         raise RuntimeError("assistant response is empty")
+                    parsed_answer = _parse_answer_blocks(answer)
+                    answer_lead_text = parsed_answer.get("lead_text", "")
+                    answer_blocks = parsed_answer.get("blocks", [])
                     request.session.pop(ASSISTANT_SESSION_ANSWERS_KEY, None)
             except HTTPError:
                 messages.error(
@@ -357,6 +431,8 @@ def assistant(request):
     context = {
         "query": query,
         "answer": answer,
+        "answer_lead_text": answer_lead_text,
+        "answer_blocks": answer_blocks,
         "awaiting_clarification": awaiting_clarification,
         "clarification_items": clarification_items,
         "persistent_clarification_answers": persistent_clarification_answers,
